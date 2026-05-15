@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Gamma Co · TraceConverge fixture (SPA · lazy GTM)</title>
+
+  <!-- IMPORTANT: do NOT paste the GTM snippet here in the head.
+       This fixture intentionally injects GTM client-side AFTER first paint
+       (see the script at the bottom of the body) to mimic SPA frameworks
+       that lazy-load analytics. -->
+
+  <style>
+    body { font-family: system-ui, -apple-system, sans-serif; max-width: 720px; margin: 4rem auto; padding: 0 1rem; color: #1f2937; line-height: 1.6; }
+    h1 { color: #2563eb; }
+    .badge { display: inline-block; padding: 0.25rem 0.75rem; background: #dbeafe; color: #1e40af; border-radius: 9999px; font-size: 0.875rem; font-weight: 600; }
+    #app { padding: 1.5rem; background: #f8fafc; border-radius: 0.5rem; min-height: 200px; }
+    .marker { background: #fef3c7; padding: 0.75rem 1rem; border-left: 4px solid #f59e0b; font-family: ui-monospace, monospace; font-size: 0.875rem; }
+  </style>
+</head>
+<body>
+  <span class="badge">GAMMA CO · SPA · LAZY GTM</span>
+  <h1>Gamma Co</h1>
+  <p>SPA fixture for Gamma Co. Content renders with React (loaded from CDN); the GTM snippet is injected only AFTER the React app has mounted. Use it to test whether Discovery correctly detects GTM that is not present in the initial HTML payload.</p>
+
+  <div id="app">Loading…</div>
+
+  <p class="marker">Run <code>docs/test-fixtures/inject-snippet.sh gamma-co --gtm &lt;your-container-id&gt;</code> to inject. Leave as-is for the "no GTM at first render" baseline test.</p>
+
+  <!-- React + ReactDOM from unpkg -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+
+  <script>
+    // Minimal React app — renders after DOMContentLoaded
+    const { createElement: h, useState, useEffect } = React;
+    function App() {
+      const [mounted, setMounted] = useState(false);
+      useEffect(() => { setMounted(true); }, []);
+      return h('div', null,
+        h('h2', null, 'React app mounted'),
+        h('p', null, mounted ? 'GTM will be injected ~500ms after this paint.' : 'Mounting…'),
+      );
+    }
+    ReactDOM.createRoot(document.getElementById('app')).render(h(App));
+
+    // Inject GTM 500ms AFTER React first paint, simulating lazy SPA analytics setup.
+    setTimeout(function () {
+      var GTM_ID = 'GTM-NM496W59';
+      if (GTM_ID === '__GTM_CONTAINER_ID__' || !GTM_ID) return; // no-op if unconfigured
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});
+        var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';
+        j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;
+        f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer',GTM_ID);
+    }, 500);
+  </script>
+</body>
+</html>
